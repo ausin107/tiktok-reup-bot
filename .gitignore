@@ -1,2 +1,4 @@
 *.mp4
 Pipfile.lock
+account.json
+fb_cookies.pickle
