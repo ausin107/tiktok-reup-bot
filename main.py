@@ -5,8 +5,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
-import requests
-import time
+import requests, time, json
 
 #sstik downloader ann curlconverter to download video from tiktok
 def downloadVideo(link, id):
@@ -60,28 +59,47 @@ def downloadVideo(link, id):
 
     mp4File = urlopen(downloadLink)
     # Feel free to change the download directory
-    with open(f"videos/{id}-{videoTitle}.mp4", "wb") as output:
+    with open(f"videos/{id}_1.mp4", "wb") as output:
         while True:
             data = mp4File.read(4096)
             if data:
                 output.write(data)
             else:
                 break
+    with open("captions.json", "r") as f:
+        captions = json.load(f)
+    captions.append(link)
+    with open ("captions.json", "w") as f:
+        json.dump(captions, f)
+def checkDuplicate(urlsDownload):
+    with open("captions.json", "r") as f:
+        captions = json.load(f)
+    new_urls = []
+    for url in urlsDownload:
+        for link in captions:
+            if link == url:
+                break
+        else: 
+            new_urls.append(url)
+    return new_urls
 
 options = webdriver.ChromeOptions()
 options.add_experimental_option("detach", True)
+options.add_argument('--disable-notifications')
 driver = webdriver.Chrome(options=options)
 driver.get("https://www.tiktok.com/")
 #Change to Comedy tab
+time.sleep(2)
 comedy_btn = driver.find_element(By.XPATH, '//*[@id="main-content-explore_page"]/div/div[1]/div[1]/button[2]')
 comedy_btn.click()
 try:
-    WebDriverWait(driver, 10)
+    time.sleep(3)
     soup = BeautifulSoup(driver.page_source, "html.parser")
     videos = soup.find_all('div', {"class" : "tiktok-1as5cen-DivWrapper"})
     urlsToDownload = []
     for video in videos:
         urlsToDownload.append(video.a["href"])
+    newUrlsToDownload = checkDuplicate(urlsToDownload)
     for index, url in enumerate(urlsToDownload):
         print(f"Downloading video: {index}")
         downloadVideo(url, index)

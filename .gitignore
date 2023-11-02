@@ -2,3 +2,7 @@
 Pipfile.lock
 account.json
 fb_cookies.pickle
+test.py
+test.json
+captions.json
+tt_cookies.pickle

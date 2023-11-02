@@ -6,6 +6,7 @@ import pickle
 import json
 options = webdriver.ChromeOptions()
 options.add_experimental_option("detach", True)
+options.add_argument('--disable-notifications')
 browser = webdriver.Chrome(options=options)
 browser.get("https://www.facebook.com/")
 
